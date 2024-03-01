@@ -125,4 +125,7 @@ metadata-service/servlet/bin/
 metadata-service/war/bin/
 metadata-utils/bin/
 test-models/bin/
+datahub-frontend.zip
+datahub-upgrade.jar
+war.war
 
