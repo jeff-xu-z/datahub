@@ -4,20 +4,34 @@
 
 [This slide deck ](https://docs.google.com/presentation/d/1opGrGqG4-QyYtaupxcnatpoGQ3wmVz9s62hbpg3q_o0/edit?usp=sharing) summarizes my evaluation.
 
-# Quick start
+## Quick start
 
 The top level ***docker*** folder is where you should look into to run datahub as containers.
 
-## Run datahub on Mac M1
+### Run datahub on Mac M1
 
-You can run the command below to use images from Docker Hub to launch datahub (http://localhost:9002).
+You can run the command below to **use images from Docker Hub** to launch datahub (http://localhost:9002).
 
 ```
 docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml up -d
 ```
 
-## Ingest demo metadata
+### Ingest demo metadata
 
+**STEP 1:** pip install datahub
+
+Follow [this instruction](https://datahubproject.io/docs/cli/#installation) to have datahub installed in your Python3 environment. It's up to you to choose whether or not to use virtual-env.
+
+**STEP 2:** load demo metadata
+
+1. You should have already cloned [pharos-goku-datahub repo](https://ghe.megaleo.com/dpoe/pharos-goku-datahub).
+2. Datahub is running.
+3. Run commands below and the demo data should be ingested in a few minutes.
+
+```
+cd <pharos-goku-datahub>
+./goku/quickstart/metadata/load.sh
+```
 
 # Build and run (local version)
 
@@ -69,7 +83,8 @@ datahub-kafka-setup                                                             
 
 ### Run on Mac M1
 
-Simply run ```make -f goku/Makefile run-local-m1 ``` and your locally built contanier images will be used to launch datahub.
+- Command ```make -f goku/Makefile run-local-m1``` launches datahub using your locally built images.
+- Command ```make -f goku/Makefile stop-local-m1``` stops datahub containers gracefully.
 
 ```
 $ make -f goku/Makefile run-local-m1
@@ -104,34 +119,6 @@ DATAHUB_FRONTEND_IMAGE=datahub-frontend-react \
  ✔ Container quickstart-datahub-frontend-react-1  Started                                                                                                                                 0.0s 
  ```
 
-### Stop running on Mac M1
-
-Simply run ```make -f goku/Makefile stop-local-m1 ``` and your locally built contanier images will be used to launch datahub.
-
-```
-$ make -f goku/Makefile stop-local-m1
-DATAHUB_FRONTEND_IMAGE=datahub-frontend-react \
-	DATAHUB_GMS_IMAGE=datahub-gms \
-	DATAHUB_UPGRADE_IMAGE=datahub-upgrade \
-	DATAHUB_ELASTIC_SETUP_IMAGE=datahub-elasticsearch-setup \
-	DATAHUB_KAFKA_SETUP_IMAGE=datahub-kafka-setup \
-	DATAHUB_MYSQL_SETUP_IMAGE=datahub-mysql-setup \
-	docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml down
-[+] Running 13/12
- ✔ Container quickstart-datahub-actions-1         Removed                                                                                                                                10.2s 
- ✔ Container quickstart-datahub-frontend-react-1  Removed                                                                                                                                 0.7s 
- ✔ Container quickstart-datahub-gms-1             Removed                                                                                                                                 1.1s 
- ✔ Container quickstart-datahub-upgrade-1         Removed                                                                                                                                 0.0s 
- ✔ Container quickstart-mysql-setup-1             Removed                                                                                                                                 0.0s 
- ✔ Container quickstart-elasticsearch-setup-1     Removed                                                                                                                                 0.0s 
- ✔ Container quickstart-kafka-setup-1             Removed                                                                                                                                 0.0s 
- ✔ Container quickstart-schema-registry-1         Removed                                                                                                                                 0.7s 
- ✔ Container quickstart-elasticsearch-1           Removed                                                                                                                                 0.8s 
- ✔ Container quickstart-mysql-1                   Removed                                                                                                                                 1.0s 
- ✔ Container quickstart-broker-1                  Removed                                                                                                                                 1.5s 
- ✔ Container quickstart-zookeeper-1               Removed                                                                                                                                 0.5s 
- ✔ Network datahub_network                        Removed                                                                                                                                 0.0s 
-```
 
 # Build (Jenkins)
 
