@@ -20,6 +20,7 @@ from datahub.metadata.schema_classes import (
 )
 
 import sys
+import os
 import logging
 import pandas as pd
 
@@ -54,7 +55,8 @@ def map_schema_row_to_SchemaFieldClass(row):
 # sfdc.csv
 # swh.csv
 def main(rest_emitter, graph, csv_file):
-    if csv_file == "swh.csv":
+    csv_filename = os.path.basename(csv_file)
+    if csv_filename == "swh.csv":
         db_name = "swh"
         domain_urn = "urn:li:domain:swh"
         data_product_urn_map = {
@@ -63,11 +65,11 @@ def main(rest_emitter, graph, csv_file):
             "ui": "urn:li:dataProduct:swh-ui",
             "apphub": "urn:li:dataProduct:swh-apphub",
         }
-    elif csv_file == "sfdc.csv":
+    elif csv_filename == "sfdc.csv":
         db_name = "lookup_db"
         domain_urn = "urn:li:domain:salesforce"
         data_product_urn = None
-    elif csv_file == "xo.csv":
+    elif csv_filename == "xo.csv":
         db_name = "lookup_db"
         domain_urn = "urn:li:domain:workday"
         data_product_urn = "urn:li:dataProduct:xo"

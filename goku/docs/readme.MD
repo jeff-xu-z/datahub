@@ -10,7 +10,7 @@ The top level ***docker*** folder is where you should look into to run datahub a
 
 ### Run datahub on Mac M1
 
-You can run the command below to **use images from Docker Hub** to launch datahub (http://localhost:9002).
+If you just want to experiment datahub quickly, you can run the command below to **use images from Docker Hub** (http://localhost:9002).
 
 ```
 docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml up -d
@@ -35,7 +35,9 @@ cd <pharos-goku-datahub>
 
 # Build and run (local version)
 
-Building datahub depends on JDK and Python. The latest datahub code needs JDK 17 + Python 3.10 while earlier versions (v0.12.0) might require JDK 11. Your local build environment should have setup like the sample as below (captured from my Mac M1).
+This section is for **datahub developer** who builds and runs locally built binaries.
+
+Building datahub depends on JDK and Python. The latest datahub code needs **JDK 17** + **Python 3.10** while earlier versions (v0.12.0) might require JDK 11. Your local build environment should have setup as below (captured from my Mac M1).
 
 ```
 # gradle
@@ -83,42 +85,69 @@ datahub-kafka-setup                                                             
 
 ### Run on Mac M1
 
-- Command ```make -f goku/Makefile run-local-m1``` launches datahub using your locally built images.
-- Command ```make -f goku/Makefile stop-local-m1``` stops datahub containers gracefully.
+- Command ```make -f goku/Makefile start-quickstart-mac-m1``` starts datahub using your locally built images.
+- Command ```make -f goku/Makefile stop-quickstart-mac-m1``` stops datahub containers gracefully.
 
 ```
-$ make -f goku/Makefile run-local-m1
-DATAHUB_FRONTEND_IMAGE=datahub-frontend-react \
-	DATAHUB_GMS_IMAGE=datahub-gms \
-	DATAHUB_UPGRADE_IMAGE=datahub-upgrade \
-	DATAHUB_ELASTIC_SETUP_IMAGE=datahub-elasticsearch-setup \
-	DATAHUB_KAFKA_SETUP_IMAGE=datahub-kafka-setup \
-	DATAHUB_MYSQL_SETUP_IMAGE=datahub-mysql-setup \
-	docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml up -d
-[+] Running 70/6
- ✔ elasticsearch 9 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                             52.1s 
- ✔ schema-registry 11 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                        40.2s 
- ✔ datahub-actions 28 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                       61.4s 
- ✔ zookeeper 2 layers [⣿⣿]      0B/0B      Pulled                                                                                                                                        38.5s 
- ✔ mysql 12 layers [⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿]      0B/0B      Pulled                                                                                                                                 43.8s 
- ✔ broker 2 layers [⣿⣿]      0B/0B      Pulled                                                                                                                                           15.1s 
-[+] Building 0.0s (0/0)                                                                                                                                                   docker:desktop-linux
-[+] Running 13/13
- ✔ Network datahub_network                        Created                                                                                                                                 0.0s 
- ✔ Container quickstart-mysql-1                   Healthy                                                                                                                                 1.3s 
- ✔ Container quickstart-elasticsearch-1           Healthy                                                                                                                                 1.3s 
- ✔ Container quickstart-zookeeper-1               Healthy                                                                                                                                 1.3s 
- ✔ Container quickstart-elasticsearch-setup-1     Exited                                                                                                                                  0.1s 
- ✔ Container quickstart-mysql-setup-1             Exited                                                                                                                                  0.1s 
- ✔ Container quickstart-broker-1                  Healthy                                                                                                                                 0.1s 
- ✔ Container quickstart-schema-registry-1         Healthy                                                                                                                                 0.0s 
- ✔ Container quickstart-kafka-setup-1             Exited                                                                                                                                  0.0s 
- ✔ Container quickstart-datahub-upgrade-1         Exited                                                                                                                                  0.0s 
- ✔ Container quickstart-datahub-gms-1             Healthy                                                                                                                                 0.0s 
- ✔ Container quickstart-datahub-actions-1         Started                                                                                                                                 0.0s 
- ✔ Container quickstart-datahub-frontend-react-1  Started                                                                                                                                 0.0s 
+$ make -f goku/Makefile start-quickstart-mac-m1
+Login to docker-dev-artifactory.workday.com ...
+...
+
+[+] Running 12/12
+ ✔ Network datahub_network                        Created                                                                                                                                                              0.0s 
+ ✔ Container quickstart-mysql-1                   Healthy                                                                                                                                                              0.8s 
+ ✔ Container quickstart-zookeeper-1               Healthy                                                                                                                                                              0.8s 
+ ✔ Container quickstart-elasticsearch-1           Healthy                                                                                                                                                              0.8s 
+ ✔ Container quickstart-elasticsearch-setup-1     Exited                                                                                                                                                               0.1s 
+ ✔ Container quickstart-mysql-setup-1             Exited                                                                                                                                                               0.1s 
+ ✔ Container quickstart-broker-1                  Healthy                                                                                                                                                              0.1s 
+ ✔ Container quickstart-schema-registry-1         Healthy                                                                                                                                                              0.0s 
+ ✔ Container quickstart-kafka-setup-1             Exited                                                                                                                                                               0.0s 
+ ✔ Container quickstart-datahub-upgrade-1         Exited                                                                                                                                                               0.0s 
+ ✔ Container quickstart-datahub-gms-1             Healthy                                                                                                                                                              0.0s 
+ ✔ Container quickstart-datahub-frontend-react-1  Started                              
  ```
 
+Your datahub should use locally built images, plus additional dependencies pulled from Workday dev artifactory (except mariadb). 
+
+```
+AQ4JR76DJ7W:datahub jeff.xu$ docker image list 
+REPOSITORY                                                           TAG       IMAGE ID       CREATED        SIZE
+datahub-frontend-react                                               head      23d5b3a09457   33 hours ago   951MB
+datahub-gms                                                          head      72b2a0a6fb09   33 hours ago   503MB
+datahub-upgrade                                                      head      d6b8aed88211   33 hours ago   568MB
+datahub-elasticsearch-setup                                          head      c076ea9cd9dd   2 days ago     28.7MB
+datahub-mysql-setup                                                  head      7a3378153415   2 days ago     104MB
+datahub-kafka-setup                                                  head      be4c72802f43   2 days ago     588MB
+docker-dev-artifactory.workday.com/ambt/artifactory-client           latest    5e8d4aaa35e8   8 days ago     608MB
+docker-dev-artifactory.workday.com/elasticsearch/elasticsearch       7.17.18   21bc9f75815d   4 weeks ago    628MB
+docker-dev-artifactory.workday.com/confluentinc/cp-schema-registry   7.5.3     7fb754a15eba   2 months ago   1.97GB
+docker-dev-artifactory.workday.com/confluentinc/cp-kafka             7.4.0     3647af234321   9 months ago   864MB
+docker-dev-artifactory.workday.com/confluentinc/cp-zookeeper         7.4.0     5c6143de34a4   9 months ago   864MB
+mariadb                                                              10.5.8    dd3ab601101c   3 years ago    392MB
+```
+
+Here's a reference of how to stop the running datahub service.
+
+```
+AQ4JR76DJ7W:datahub jeff.xu$ make -f goku/Makefile stop-quickstart-mac-m1
+docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml down
+
+[+] Running 0/0
+[+] Running 12/11kstart-datahub-frontend-react-1  Stopping                                                                                                                                                             0.1s 
+ ✔ Container quickstart-datahub-frontend-react-1  Removed                                                                                                                                                              0.7s 
+ ✔ Container quickstart-datahub-gms-1             Removed                                                                                                                                                              1.0s 
+ ✔ Container quickstart-datahub-upgrade-1         Removed                                                                                                                                                              0.0s 
+ ✔ Container quickstart-mysql-setup-1             Removed                                                                                                                                                              0.0s 
+ ✔ Container quickstart-kafka-setup-1             Removed                                                                                                                                                              0.0s 
+ ✔ Container quickstart-elasticsearch-setup-1     Removed                                                                                                                                                              0.0s 
+ ✔ Container quickstart-schema-registry-1         Removed                                                                                                                                                              0.9s 
+ ✔ Container quickstart-mysql-1                   Removed                                                                                                                                                              1.0s 
+ ✔ Container quickstart-elasticsearch-1           Removed                                                                                                                                                              0.8s 
+ ✔ Container quickstart-broker-1                  Removed                                                                                                                                                              0.9s 
+ ✔ Container quickstart-zookeeper-1               Removed                                                                                                                                                              0.5s 
+ ✔ Network datahub_network                        Removed                                                                                                                                                              0.1s 
+```
 
 # Build (Jenkins)
 
