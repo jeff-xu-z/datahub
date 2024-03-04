@@ -12,7 +12,7 @@ ${DIR}/create_base.py
 for csv_f in sfdc.csv xo.csv swh.csv;
 do
     echo "Loading ${csv_f} ..."
-    ${DIR}/ingest_tables.py ${csv_f}
+    ${DIR}/ingest_tables.py ${DIR}/${csv_f}
 done
 
 echo "Creating post ..."
