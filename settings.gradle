@@ -1,3 +1,44 @@
+pluginManagement {
+    repositories {
+        maven {
+            url 'https://artifactory.workday.com/artifactory/virtrelease'
+
+            credentials {
+                username = AF_USER
+                password = AF_PASSWORD
+            }
+
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+        maven {
+            url 'https://artifactory.workday.com/artifactory/yet-another-gradle-repos'
+
+            credentials {
+                username = AF_USER
+                password = AF_PASSWORD
+            }
+
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+        maven {
+            url 'https://artifactory.workday.com/artifactory/linkedin.jfrog.io/open-source'
+
+            credentials {
+                username = AF_USER
+                password = AF_PASSWORD
+            }
+
+            authentication {
+                basic(BasicAuthentication)
+            }
+        }
+    }
+}
+
 include 'datahub-web-react'
 include 'datahub-frontend'
 include 'datahub-graphql-core'

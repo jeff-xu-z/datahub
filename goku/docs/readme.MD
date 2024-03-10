@@ -4,11 +4,11 @@
 
 [This slide deck ](https://docs.google.com/presentation/d/1opGrGqG4-QyYtaupxcnatpoGQ3wmVz9s62hbpg3q_o0/edit?usp=sharing) summarizes my evaluation.
 
-## Quick start
+## Quick start using official images from docker hub
 
 The top level ***docker*** folder is where you should look into to run datahub as containers.
 
-### Run datahub on Mac M1
+#### Run datahub on Mac M1
 
 If you just want to experiment datahub quickly, you can run the command below to **use images from Docker Hub** (http://localhost:9002).
 
@@ -16,7 +16,7 @@ If you just want to experiment datahub quickly, you can run the command below to
 docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml up -d
 ```
 
-### Ingest demo metadata
+#### Ingest demo metadata
 
 **STEP 1:** pip install datahub
 
@@ -33,9 +33,17 @@ cd <pharos-goku-datahub>
 ./goku/quickstart/metadata/load.sh
 ```
 
+#### Stop datahub on Mac M1
+
+```
+docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml down
+```
+
 # Build and run (local version)
 
 This section is for **datahub developer** who builds and runs locally built binaries.
+
+## Build environment
 
 Building datahub depends on JDK and Python. The latest datahub code needs **JDK 17** + **Python 3.10** while earlier versions (v0.12.0) might require JDK 11. Your local build environment should have setup as below (captured from my Mac M1).
 
@@ -64,92 +72,33 @@ $ python3 -c "import sys; print(sys.version)"
 3.10.13 (main, Aug 24 2023, 22:36:46) [Clang 14.0.3 (clang-1403.0.22.14.1)]
 
 ```
-## Build locally
 
-### Build on Mac M1
+## Understand datahub build
 
-Simply run ```make -f goku/Makefile build``` and you should have the following container images created.
+We only need to build a few components (gms, frontend and upgrade) by ourselves and leverage docker hub official images for other components.
 
-```
-$ docker image list
-REPOSITORY                                                                              TAG             IMAGE ID       CREATED          SIZE
-datahub-frontend-react                                                                  head            2ffbfab5be62   22 minutes ago   951MB
-datahub-gms                                                                             head            76ff10c3ec4a   23 minutes ago   503MB
-datahub-upgrade                                                                         head            61ff1e45af41   23 minutes ago   568MB
-datahub-elasticsearch-setup                                                             head            c076ea9cd9dd   24 minutes ago   28.7MB
-datahub-mysql-setup                                                                     head            7a3378153415   25 minutes ago   104MB
-datahub-kafka-setup                                                                     head            be4c72802f43   26 minutes ago   588MB
-```
+Building a datahub component involves two steps. We use datahub-gms as example.
 
-## Run locally
+1. Compile source code to generate the component's distribution artifact ($DATAHUB/metadata-service/war/build/libs/war.war).
+1. Build docker image from the component's distribution artifacts ($DATAHUB/docker/datahub-gms/Dockerfile).
 
-### Run on Mac M1
+You can refer to following targets in ```goku/Makefile``` for details.
 
-- Command ```make -f goku/Makefile start-quickstart-mac-m1``` starts datahub using your locally built images.
-- Command ```make -f goku/Makefile stop-quickstart-mac-m1``` stops datahub containers gracefully.
+1. ```local-build-datahub-gms```
+1. ```local-build-datahub-frontend-react```
+1. ```local-build-datahub-upgrade```
+1. ```build-datahub-docker-images```
 
-```
-$ make -f goku/Makefile start-quickstart-mac-m1
-Login to docker-dev-artifactory.workday.com ...
-...
+## Build and run locally on Mac M1
 
-[+] Running 12/12
- ✔ Network datahub_network                        Created                                                                                                                                                              0.0s 
- ✔ Container quickstart-mysql-1                   Healthy                                                                                                                                                              0.8s 
- ✔ Container quickstart-zookeeper-1               Healthy                                                                                                                                                              0.8s 
- ✔ Container quickstart-elasticsearch-1           Healthy                                                                                                                                                              0.8s 
- ✔ Container quickstart-elasticsearch-setup-1     Exited                                                                                                                                                               0.1s 
- ✔ Container quickstart-mysql-setup-1             Exited                                                                                                                                                               0.1s 
- ✔ Container quickstart-broker-1                  Healthy                                                                                                                                                              0.1s 
- ✔ Container quickstart-schema-registry-1         Healthy                                                                                                                                                              0.0s 
- ✔ Container quickstart-kafka-setup-1             Exited                                                                                                                                                               0.0s 
- ✔ Container quickstart-datahub-upgrade-1         Exited                                                                                                                                                               0.0s 
- ✔ Container quickstart-datahub-gms-1             Healthy                                                                                                                                                              0.0s 
- ✔ Container quickstart-datahub-frontend-react-1  Started                              
- ```
+This section is for developer who have made code changes and want to test things out locally.
 
-Your datahub should use locally built images, plus additional dependencies pulled from Workday dev artifactory (except mariadb). 
-
-```
-AQ4JR76DJ7W:datahub jeff.xu$ docker image list 
-REPOSITORY                                                           TAG       IMAGE ID       CREATED        SIZE
-datahub-frontend-react                                               head      23d5b3a09457   33 hours ago   951MB
-datahub-gms                                                          head      72b2a0a6fb09   33 hours ago   503MB
-datahub-upgrade                                                      head      d6b8aed88211   33 hours ago   568MB
-datahub-elasticsearch-setup                                          head      c076ea9cd9dd   2 days ago     28.7MB
-datahub-mysql-setup                                                  head      7a3378153415   2 days ago     104MB
-datahub-kafka-setup                                                  head      be4c72802f43   2 days ago     588MB
-docker-dev-artifactory.workday.com/ambt/artifactory-client           latest    5e8d4aaa35e8   8 days ago     608MB
-docker-dev-artifactory.workday.com/elasticsearch/elasticsearch       7.17.18   21bc9f75815d   4 weeks ago    628MB
-docker-dev-artifactory.workday.com/confluentinc/cp-schema-registry   7.5.3     7fb754a15eba   2 months ago   1.97GB
-docker-dev-artifactory.workday.com/confluentinc/cp-kafka             7.4.0     3647af234321   9 months ago   864MB
-docker-dev-artifactory.workday.com/confluentinc/cp-zookeeper         7.4.0     5c6143de34a4   9 months ago   864MB
-mariadb                                                              10.5.8    dd3ab601101c   3 years ago    392MB
-```
-
-Here's a reference of how to stop the running datahub service.
-
-```
-AQ4JR76DJ7W:datahub jeff.xu$ make -f goku/Makefile stop-quickstart-mac-m1
-docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml down
-
-[+] Running 0/0
-[+] Running 12/11kstart-datahub-frontend-react-1  Stopping                                                                                                                                                             0.1s 
- ✔ Container quickstart-datahub-frontend-react-1  Removed                                                                                                                                                              0.7s 
- ✔ Container quickstart-datahub-gms-1             Removed                                                                                                                                                              1.0s 
- ✔ Container quickstart-datahub-upgrade-1         Removed                                                                                                                                                              0.0s 
- ✔ Container quickstart-mysql-setup-1             Removed                                                                                                                                                              0.0s 
- ✔ Container quickstart-kafka-setup-1             Removed                                                                                                                                                              0.0s 
- ✔ Container quickstart-elasticsearch-setup-1     Removed                                                                                                                                                              0.0s 
- ✔ Container quickstart-schema-registry-1         Removed                                                                                                                                                              0.9s 
- ✔ Container quickstart-mysql-1                   Removed                                                                                                                                                              1.0s 
- ✔ Container quickstart-elasticsearch-1           Removed                                                                                                                                                              0.8s 
- ✔ Container quickstart-broker-1                  Removed                                                                                                                                                              0.9s 
- ✔ Container quickstart-zookeeper-1               Removed                                                                                                                                                              0.5s 
- ✔ Network datahub_network                        Removed                                                                                                                                                              0.1s 
-```
-
-# Build (Jenkins)
-
-# Deploy in AWS
-
+1. Run ```make -f goku/Makefile <target>```, where target is one of the following values (depending on which module you've made changes).
+   1. local-build-datahub-gms
+   1. local-build-datahub-frontend-react
+   1. local-build-datahub-upgrade
+1. Whence previous step passes, you run the following two steps to build datahub locally.
+   1. ```make -f goku/Makefile local-build-datahub```
+   1. ```make -f goku/Makefile build-datahub-docker-images```
+1. Now you can launch datahub with your local container images by running ```make -f goku/Makefile start-datahub-mac-m1```.
+1. To stop datahub, run ```make -f goku/Makefile stop-datahub-mac-m1```.

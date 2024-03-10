@@ -5,8 +5,9 @@ ARG APP_ENV=prod
 ARG ALPINE_REPO_URL=http://dl-cdn.alpinelinux.org/alpine
 ARG GITHUB_REPO_URL=https://github.com
 ARG MAVEN_CENTRAL_REPO_URL=https://repo1.maven.org/maven2
+ARG GOPROXY=https://proxy.golang.org
 
-FROM golang:1-alpine3.18 AS binary
+FROM docker-dev-artifactory.workday.com/library/golang:1-alpine3.18 AS binary
 
 # Re-declaring arg from above to make it available in this stage (will inherit default value)
 ARG ALPINE_REPO_URL
@@ -21,9 +22,10 @@ RUN apk --no-cache --update add openssl git tar curl
 
 WORKDIR /go/src/github.com/jwilder/dockerize
 
+ENV GOPROXY=${GOPROXY}
 RUN go install github.com/jwilder/dockerize@$DOCKERIZE_VERSION
 
-FROM alpine:3.18 AS base
+FROM docker-dev-artifactory.workday.com/library/alpine:3.18 AS base
 
 # Re-declaring args from above to make them available in this stage (will inherit default values)
 ARG ALPINE_REPO_URL
