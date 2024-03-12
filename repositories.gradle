@@ -1,30 +1,33 @@
 repositories {
-    gradlePluginPortal()
-    mavenLocal()
-
-    if (project.hasProperty('apacheMavenRepositoryUrl')) {
-        maven { url project.getProperty('apacheMavenRepositoryUrl') }
-    } else {
-        mavenCentral()
-    }
-
-    if (project.hasProperty('confluentMavenRepositoryUrl')) {
-        maven {
-            url project.getProperty('confluentMavenRepositoryUrl')
-        }
-    } else {
-        maven {
-            url "https://packages.confluent.io/maven/"
+    maven {
+        url 'https://artifactory.workday.com/artifactory/virtrelease'
+        credentials {
+            username = AF_USER
+            password = AF_PASSWORD
         }
     }
 
-    if (project.hasProperty('linkedinOpenSourceRepositoryUrl')) {
-        maven {
-            url project.getProperty('linkedinOpenSourceRepositoryUrl')
+    maven {
+        url "https://artifactory.workday.com/artifactory/yet-another-gradle-repos/"
+        credentials {
+            username = AF_USER
+            password = AF_PASSWORD
         }
-    } else {
-        maven {
-            url "https://linkedin.jfrog.io/artifactory/open-source/" // GMA, pegasus
+    }
+
+    maven {
+        url "https://artifactory.workday.com/artifactory/linkedin.jfrog.io/open-source"
+        credentials {
+            username = AF_USER
+            password = AF_PASSWORD
+        }
+    }
+
+    maven {
+        url "https://artifactory.workday.com/artifactory/packages.confluent.io/maven"
+        credentials {
+            username = AF_USER
+            password = AF_PASSWORD
         }
     }
 }
