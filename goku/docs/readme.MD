@@ -16,22 +16,19 @@ If you just want to experiment datahub quickly, you can run the command below to
 docker-compose -f docker/quickstart/docker-compose-without-neo4j-m1.quickstart.yml up -d
 ```
 
-#### Ingest demo metadata
+#### Ingest sample metadata
 
-**STEP 1:** pip install datahub
-
-Follow [this instruction](https://datahubproject.io/docs/cli/#installation) to have datahub installed in your Python3 environment. It's up to you to choose whether or not to use virtual-env.
-
-**STEP 2:** load demo metadata
-
-1. You should have already cloned [pharos-goku-datahub repo](https://ghe.megaleo.com/dpoe/pharos-goku-datahub).
-2. Datahub is running.
-3. Run commands below and the demo data should be ingested in a few minutes.
+A set of sample data has been built as a docker image. You can load the sample data set as below.
 
 ```
-cd <pharos-goku-datahub>
-./goku/quickstart/metadata/load.sh
+cd goku/quickstart/ && make run
 ```
+
+Whence the docker container completes execution, your refreshed browser should show something as below.
+- SWH: ~1.2k swh tables
+- Superset: Dashboards and charts ingested from Nimbus ENG.
+
+![Alt text](../images/goku-sample-data.png)
 
 #### Stop datahub on Mac M1
 

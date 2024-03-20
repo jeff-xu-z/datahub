@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
+import argparse
+import logging
+import pandas as pd
+
 # Imports for urn construction utility methods
-from datahub.emitter.mce_builder import make_data_platform_urn, make_dataset_urn
+from datahub.emitter.mce_builder import make_data_platform_urn, make_dataset_urn, make_domain_urn
 from datahub.emitter.mcp import MetadataChangeProposalWrapper
 from datahub.emitter.rest_emitter import DatahubRestEmitter
 from datahub.ingestion.graph.client import DatahubClientConfig, DataHubGraph
@@ -19,14 +23,8 @@ from datahub.metadata.schema_classes import (
     NumberTypeClass,
 )
 
-import sys
-import os
-import logging
-import pandas as pd
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-
 
 def map_col_type_to_class(col_type):
     if col_type.startswith('decimal') or col_type in ('double', 'float'):
@@ -51,42 +49,21 @@ def map_schema_row_to_SchemaFieldClass(row):
         isPartitioningKey=bool(row['is_partition_col']),
     )
 
-# xo.csv
-# sfdc.csv
-# swh.csv
-def main(rest_emitter, graph, csv_file):
-    csv_filename = os.path.basename(csv_file)
-    if csv_filename == "swh.csv":
-        db_name = "swh"
-        domain_urn = "urn:li:domain:swh"
-        data_product_urn_map = {
-            "oms": "urn:li:dataProduct:swh-oms",
-            "prism": "urn:li:dataProduct:swh-prism",
-            "ui": "urn:li:dataProduct:swh-ui",
-            "apphub": "urn:li:dataProduct:swh-apphub",
-        }
-    elif csv_filename == "sfdc.csv":
-        db_name = "lookup_db"
-        domain_urn = "urn:li:domain:salesforce"
-        data_product_urn = None
-    elif csv_filename == "xo.csv":
-        db_name = "lookup_db"
-        domain_urn = "urn:li:domain:workday"
-        data_product_urn = "urn:li:dataProduct:xo"
-    else:
-        raise Exception(f"Bad value: {csv_file}!")
+def main(rest_emitter, graph, csv_file, platform, domain):
+    logger.info(f"processing {csv_file} ...")
+    platform_urn = make_data_platform_urn(platform)
     df = pd.read_csv(csv_file, keep_default_na=False, na_filter=False)
     for tbl_name in df['name'].unique().tolist():
-        if db_name == "swh":
-            data_product_urn = data_product_urn_map.get(tbl_name.split("_")[0], None)
+        logger.info(f"processing {csv_file} {tbl_name} ...")
         table_df = df[df['name'] == tbl_name]
-        dataset_urn = make_dataset_urn(platform="trino", name=f"dw.{db_name}.{tbl_name}", env="PROD")
+        db_name = table_df['schema'].tolist()[0]
+        dataset_urn = make_dataset_urn(platform=platform_urn, name=f"dw.{db_name}.{tbl_name}", env="PROD")
 
         event: MetadataChangeProposalWrapper = MetadataChangeProposalWrapper(
             entityUrn=dataset_urn,
             aspect=SchemaMetadataClass(
                 schemaName="", # not used
-                platform=make_data_platform_urn("trino"),
+                platform=platform_urn,
                 version=0,
                 hash="",
                 platformSchema=OtherSchemaClass(rawSchema=""),
@@ -98,43 +75,24 @@ def main(rest_emitter, graph, csv_file):
         )
         logger.info(f"emit {tbl_name} ...")
         rest_emitter.emit(event)
-        # set domain
-        graph.execute_graphql(query = f"""
-mutation setDomain {{
-    setDomain(domainUrn: "{domain_urn}", entityUrn: "{dataset_urn}")
-}}
-""")
-        # set data product
-        if data_product_urn is not None:
+        if domain:
+            domain_urn = make_domain_urn(domain.lower())
             graph.execute_graphql(query = f"""
-mutation batchSetDataProduct {{
-    batchSetDataProduct(
-        input: {{
-            dataProductUrn: "{data_product_urn}",
-            resourceUrns: ["{dataset_urn}"]
-        }}
-    )    
-}}
-""")                                  
-
-'''
-{
-    "operationName": "batchSetDataProduct",
-    "variables": {
-        "input": {
-            "resourceUrns": [
-                "urn:li:dataset:(urn:li:dataPlatform:hive,swh.access,PROD)"
-            ],
-            "dataProductUrn": "urn:li:dataProduct:swh-ui"
-        }
-    },
-    "query": "mutation batchSetDataProduct($input: BatchSetDataProductInput!) {\n  batchSetDataProduct(input: $input)\n}\n"
-}
-'''
+    mutation setDomain {{
+        setDomain(domainUrn: "{domain_urn}", entityUrn: "{dataset_urn}")
+    }}
+    """)
 
 
 if __name__ == "__main__":
-    # Create rest emitter
-    rest_emitter = DatahubRestEmitter(gms_server="http://localhost:8080")
-    graph = DataHubGraph(DatahubClientConfig(server="http://localhost:8080"))
-    main(rest_emitter, graph, sys.argv[1])
+    parser = argparse.ArgumentParser(
+        formatter_class = argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("--gms", required=True)
+    parser.add_argument("--file", required=True)
+    parser.add_argument("--platform", required=True)
+    parser.add_argument("--domain")
+    args = parser.parse_args()
+    rest_emitter = DatahubRestEmitter(gms_server=args.gms)
+    graph = DataHubGraph(DatahubClientConfig(server=args.gms))
+    main(rest_emitter, graph, args.file, args.platform, args.domain)
